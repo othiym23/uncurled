@@ -1,0 +1,29 @@
+{
+  "name": "uncurled",
+  "version": "1.0.0",
+  "description": "Like curl, but in pure JavaScript.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/othiym23/uncurled.git"
+  },
+  "keywords": [
+    "curl",
+    "wget",
+    "cli",
+    "fetch",
+    "http"
+  ],
+  "author": "Forrest L Norvell <ogd@aoaioxxysz.net>",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/othiym23/uncurled/issues"
+  },
+  "dependencies": {
+    "optimist": "~0.5.2",
+    "request": "~2.21.0"
+  }
+}
