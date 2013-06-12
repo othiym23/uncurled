@@ -88,8 +88,9 @@ function _send(options, data, transformer) {
     encoded = process.stdin.pipe(transformer);
   }
   else {
-    transformer.write(data);
-    transformer.end();
+    encoded = transformer;
+    encoded.write(data);
+    encoded.end();
   }
 
   return encoded;
