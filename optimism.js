@@ -39,6 +39,22 @@ optimism.options('data-binary', {
   description : "HTTP POST binary data"
 });
 
+optimism.options('data-json', {
+  type        : 'string',
+  description : "HTTP POST JSON data"
+}).check(function (argv) {
+  if (!argv['data-json']) return true;
+
+  var first = argv['data-json'][0];
+  try {
+    if (!(first === '-' || first === '@')) JSON.parse(argv['data-json']);
+    return true;
+  }
+  catch (e) {
+    return false;
+  }
+});
+
 optimism.check(function (argv) {
   return argv._.length === 1;
 });

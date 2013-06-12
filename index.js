@@ -53,9 +53,9 @@ function _send(options, data, transformer) {
   return encoded;
 }
 
-function send(options, data) {
-  options.headers  = {'Content-Type' : 'application/octet-stream'};
-  options.encoding = 'binary';
+function send(options, data, encoding, contentType) {
+  options.headers  = {'Content-Type' : contentType};
+  options.encoding = encoding;
 
   return _send(options, data, new PassThrough()).pipe(request(options, handler));
 }
@@ -74,7 +74,10 @@ else if (argv['data-ascii']) {
   sendURIEncoded(options, argv['data-ascii']);
 }
 else if (argv['data-binary']) {
-  send(options, argv['data-binary']);
+  send(options, argv['data-binary'], 'binary', 'application/octet-stream');
+}
+else if (argv['data-json']) {
+  send(options, argv['data-json'], 'utf8', 'application/json');
 }
 else {
   request(options, handler);

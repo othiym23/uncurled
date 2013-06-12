@@ -1,4 +1,4 @@
-Like curl, but does way less. Runs anywhere Node.js does.
+Like `curl`, but does way less. Runs anywhere Node.js does.
 
 ```
 Usage: uncurl [options...] <url>
@@ -9,6 +9,7 @@ Options:
   -d, --data     HTTP POST data                          [string]
   --data-ascii   HTTP POST ASCII data                    [string]
   --data-binary  HTTP POST binary data                   [string]
+  --data-json    HTTP POST JSON data                     [string]
 ```
 
 *NOTE:* for the long parameters, if you want to read from standard input,
@@ -24,3 +25,9 @@ input until EOF. Data will be sent as Content-Type
 name. It doesn't URL encode the data, but it does set the Content-Type to
 `application/octet-stream`, and sends the data with a binary encoding. It also
 allows the use of `@` to read files and `-` for standard input.
+
+`--data-json` is an option unique to `uncurl`. If the data isn't streaming
+(that is, coming from a file or standard input), `uncurl` will verify that it's
+valid JSON before sending it to the server. It will also set the Content-Type
+to `application/json` and the encoding to UTF-8. It also allows the use of `@`
+to read files and `-` for standard input.
