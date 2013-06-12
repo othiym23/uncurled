@@ -1,9 +1,10 @@
 'use strict';
 
-var fs            = require('fs');
-var request       = require('request');
-var getStatusText = require('http-status-codes').getStatusText;
-var optimism      = require('optimist')
+var request          = require('request');
+var getStatusText    = require('http-status-codes').getStatusText;
+var createReadStream = require('fs').createReadStream;
+var URLEncodeStream  = require('urlencode-stream');
+var optimism         = require('optimist')
   .usage("Usage: $0 [options...] <url>");
 
 var METHODS = ['PUT', 'GET', 'POST', 'DELETE', 'PATCH', 'OPTIONS', 'TRACE'];
@@ -61,22 +62,33 @@ function handler(error, res, body) {
   console.log(body);
 }
 
-if (argv.data) {
-  var data = argv.data;
+function send(options, data, encoding) {
   options.method = 'POST';
+  options.headers = {'Content-Type' : 'application/x-www-form-urlencoded'};
 
+  if (encoding) options.encoding = encoding;
+
+  var encoded;
   if (data[0] === '@') {
     var filename = data.slice(1);
 
-    return fs.createReadStream(filename).pipe(request(options, handler));
+    encoded = createReadStream(filename).pipe(new URLEncodeStream());
   }
   else if (data === '-') {
-    return process.stdin.pipe(request(options, handler));
+    encoded = process.stdin.pipe(new URLEncodeStream());
   }
   else {
-    options.body = data;
-    options.headers = {'Content-Type' : 'text/plain'};
+    encoded = new URLEncodeStream();
+    encoded.write(data);
+    encoded.end();
   }
+
+  return encoded.pipe(request(options, handler));
 }
 
-request(options, handler);
+if (argv.data) {
+  send(options, argv.data, 'ascii');
+}
+else {
+  request(options, handler);
+}
