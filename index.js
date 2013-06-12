@@ -1,5 +1,6 @@
 'use strict';
 
+var fs            = require('fs');
 var request       = require('request');
 var getStatusText = require('http-status-codes').getStatusText;
 var optimism      = require('optimist')
@@ -52,16 +53,26 @@ var argv    = optimism.argv,
     method  = argv.request,
     options = {url : url, method : method};
 
-if (argv.data) {
-  options.method = 'POST';
-  options.body = argv.data;
-  options.headers = {'Content-Type' : 'text/plain'};
-}
-
-request(options, function (error, res, body) {
+function handler(error, res, body) {
   if (error) return console.error("uncurled barfed: %s", error.message);
 
   if (argv.include) dumpHeaders(res);
 
   console.log(body);
-});
+}
+
+if (argv.data) {
+  var data = argv.data;
+  options.method = 'POST';
+
+  if (data[0] === '@') {
+    var filename = data.slice(1);
+    return fs.createReadStream(filename).pipe(request(options, handler));
+  }
+  else {
+    options.body = data;
+    options.headers = {'Content-Type' : 'text/plain'};
+  }
+}
+
+request(options, handler);
