@@ -1,21 +1,16 @@
 'use strict';
 
-var request  = require('request');
-var codes    = require('http-status-codes');
-var optimism = require('optimist')
-  .usage("Usage: $0 [options...] <url>")
-  .boolean('i')
-  .alias('i', 'include')
-  .describe('i', "Include protocol headers in the output")
-  .default('X', 'GET')
-  .alias('X', 'request')
-  .describe('X', 'Specify request command to use');
-var argv     = optimism.argv;
+var request       = require('request');
+var getStatusText = require('http-status-codes').getStatusText;
+var optimism      = require('optimist')
+  .usage("Usage: $0 [options...] <url>");
+
+var METHODS = ['PUT', 'GET', 'POST', 'DELETE', 'PATCH', 'OPTIONS', 'TRACE'];
 
 function dumpHeaders(res) {
   console.log("HTTP/%s.%s %s %s",
               res.httpVersionMajor, res.httpVersionMinor,
-              res.statusCode, codes.getStatusText(res.statusCode));
+              res.statusCode, getStatusText(res.statusCode));
 
   Object.keys(res.headers).forEach(function (k) {
     console.log("%s: %s", k, res.headers[k]);
@@ -24,21 +19,37 @@ function dumpHeaders(res) {
 }
 
 function validHttpMethod(method) {
-  return ['PUT', 'GET', 'POST',
-          'DELETE', 'PATCH', 'OPTIONS',
-          'TRACE', 'CONNECT'].indexOf(method) >= 0;
+  return METHODS.indexOf(method) >= 0;
 }
 
-if (argv._.length !== 1 || !validHttpMethod(argv.X)) return optimism.showHelp();
+optimism.options('i', {
+  type        : 'boolean',
+  alias       : 'include',
+  description : "Include protocol headers in the output"
+});
 
-var options = {
-  url    : argv._[0],
-  method : argv.request
-};
+optimism.options('X', {
+  type        : 'string',
+  alias       : 'request',
+  default     : 'GET',
+  description : "Specify request command to use"
+}).check(function (argv) {
+  return validHttpMethod(argv.X);
+});
+
+optimism.check(function (argv) {
+  return argv._.length === 1;
+});
+
+var argv    = optimism.argv,
+    url     = argv._[0],
+    method  = argv.request,
+    options = {url : url, method : method};
 
 request(options, function (error, res, body) {
   if (error) return console.error("uncurled barfed: %s", error.message);
 
-  if (argv.i || argv.include) dumpHeaders(res);
+  if (argv.include) dumpHeaders(res);
+
   console.log(body);
 });
