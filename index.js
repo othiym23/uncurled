@@ -37,6 +37,12 @@ optimism.options('X', {
   return validHttpMethod(argv.X);
 });
 
+optimism.options('d', {
+  type        : 'string',
+  alias       : 'data',
+  description : "HTTP POST data"
+});
+
 optimism.check(function (argv) {
   return argv._.length === 1;
 });
@@ -45,6 +51,12 @@ var argv    = optimism.argv,
     url     = argv._[0],
     method  = argv.request,
     options = {url : url, method : method};
+
+if (argv.data) {
+  options.method = 'POST';
+  options.body = argv.data;
+  options.headers = {'Content-Type' : 'text/plain'};
+}
 
 request(options, function (error, res, body) {
   if (error) return console.error("uncurled barfed: %s", error.message);
