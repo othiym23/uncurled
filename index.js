@@ -67,7 +67,11 @@ if (argv.data) {
 
   if (data[0] === '@') {
     var filename = data.slice(1);
+
     return fs.createReadStream(filename).pipe(request(options, handler));
+  }
+  else if (data === '-') {
+    return process.stdin.pipe(request(options, handler));
   }
   else {
     options.body = data;
