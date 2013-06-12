@@ -1,6 +1,6 @@
 {
   "name": "uncurled",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Like curl, but in pure JavaScript.",
   "main": "index.js",
   "bin": {
